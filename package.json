@@ -1,0 +1,40 @@
+{
+  "name": "relivio",
+  "version": "0.1.0",
+  "description": "Primitive TypeScript client for Relivio deploy registration, ingest, and exception capture.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "relivio",
+    "sdk",
+    "typescript",
+    "deploy",
+    "ingest",
+    "node"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsx --test tests/**/*.test.ts",
+    "pack:check": "npm pack --dry-run",
+    "prepack": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.8.3"
+  }
+}
