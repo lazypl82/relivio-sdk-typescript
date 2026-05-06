@@ -4,7 +4,7 @@ Primitive TypeScript client for Relivio deploy registration, ingest, and excepti
 
 ## Status
 
-- current package scope: `0.1.0`
+- current package scope: `0.2.0`
 - supported runtime: `Node.js 20+`
 - current public surface:
   - `deployments.register()`
