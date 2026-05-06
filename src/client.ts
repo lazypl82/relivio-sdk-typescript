@@ -23,7 +23,10 @@ export class Relivio {
     this.ingest = new IngestResource(http);
     this.protection = new ProtectionResource(http);
     this.verdicts = new VerdictsResource(http);
-    this.capture = new CaptureResource(this.ingest, this.statsStore);
+    this.capture = new CaptureResource(this.ingest, this.statsStore, {
+      defaultService: resolved.defaultService,
+      traceIdProvider: resolved.traceIdProvider,
+    });
   }
 
   stats(): RelivioStatsSnapshot {

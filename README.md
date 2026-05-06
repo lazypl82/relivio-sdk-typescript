@@ -76,6 +76,23 @@ try {
 }
 ```
 
+If `service` and `traceId` are repetitive across calls, set them once at client init. They apply only to `captureException` — explicit `ingest.send()` payloads are passed through unchanged.
+
+```ts
+import { AsyncLocalStorage } from "node:async_hooks";
+
+const requestContext = new AsyncLocalStorage<{ requestId: string }>();
+
+const relivio = new Relivio({
+  apiKey: "rk_...",
+  defaultService: "checkout-api",
+  traceIdProvider: () => requestContext.getStore()?.requestId,
+});
+
+// Per-call only apiPath needs to be passed.
+await relivio.captureException(error, { apiPath: req.path });
+```
+
 Read protection status explicitly from guard code:
 
 ```ts

@@ -1,9 +1,13 @@
+export type TraceIdProvider = () => string | null | undefined;
+
 export interface RelivioOptions {
   apiKey: string;
   baseUrl?: string;
   timeoutMs?: number;
   maxRetries?: number;
   fetchImpl?: typeof fetch;
+  defaultService?: string;
+  traceIdProvider?: TraceIdProvider;
 }
 
 export interface ResolvedOptions {
@@ -12,6 +16,8 @@ export interface ResolvedOptions {
   timeoutMs: number;
   maxRetries: number;
   fetchImpl: typeof fetch;
+  defaultService: string | undefined;
+  traceIdProvider: TraceIdProvider | undefined;
 }
 
 export function resolveOptions(options: RelivioOptions): ResolvedOptions {
@@ -25,7 +31,7 @@ export function resolveOptions(options: RelivioOptions): ResolvedOptions {
     throw new Error("baseUrl must be non-empty");
   }
 
-  const timeoutMs = options.timeoutMs ?? 10_000;
+  const timeoutMs = options.timeoutMs ?? 2_000;
   if (timeoutMs <= 0) {
     throw new Error("timeoutMs must be positive");
   }
@@ -40,12 +46,19 @@ export function resolveOptions(options: RelivioOptions): ResolvedOptions {
     throw new Error("fetchImpl is required");
   }
 
+  const defaultService =
+    typeof options.defaultService === "string"
+      ? options.defaultService.trim() || undefined
+      : undefined;
+
   return {
     apiKey,
     baseUrl,
     timeoutMs,
     maxRetries,
     fetchImpl,
+    defaultService,
+    traceIdProvider: options.traceIdProvider,
   };
 }
 

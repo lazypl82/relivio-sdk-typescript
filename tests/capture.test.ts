@@ -88,3 +88,123 @@ test("capture failures stay inside sdk status", async () => {
   assert.equal(status.captureSendFailures, 1);
   assert.match(status.lastCaptureError ?? "", /Network request failed/);
 });
+
+test("captureException uses defaultService when caller omits service", async () => {
+  let captured: { service: unknown } | null = null;
+  const client = new Relivio({
+    apiKey: "rk_test",
+    defaultService: "checkout-api",
+    fetchImpl: async (_url, init) => {
+      captured = JSON.parse(String(init?.body));
+      return new Response(
+        JSON.stringify({ status: "accepted", log_event_id: "log_default" }),
+        { status: 202 },
+      );
+    },
+  });
+
+  await client.captureException(new Error("boom"), { apiPath: "/api/orders" });
+
+  assert.equal(captured?.service, "checkout-api");
+});
+
+test("explicit service overrides defaultService", async () => {
+  let captured: { service: unknown } | null = null;
+  const client = new Relivio({
+    apiKey: "rk_test",
+    defaultService: "checkout-api",
+    fetchImpl: async (_url, init) => {
+      captured = JSON.parse(String(init?.body));
+      return new Response(
+        JSON.stringify({ status: "accepted", log_event_id: "log_override" }),
+        { status: 202 },
+      );
+    },
+  });
+
+  await client.captureException(new Error("boom"), { service: "orders-worker" });
+
+  assert.equal(captured?.service, "orders-worker");
+});
+
+test("captureException uses traceIdProvider when caller omits traceId", async () => {
+  let captured: { trace_id: unknown } | null = null;
+  const client = new Relivio({
+    apiKey: "rk_test",
+    traceIdProvider: () => "trace_from_provider",
+    fetchImpl: async (_url, init) => {
+      captured = JSON.parse(String(init?.body));
+      return new Response(
+        JSON.stringify({ status: "accepted", log_event_id: "log_trace" }),
+        { status: 202 },
+      );
+    },
+  });
+
+  await client.captureException(new Error("boom"));
+
+  assert.equal(captured?.trace_id, "trace_from_provider");
+});
+
+test("explicit traceId overrides traceIdProvider", async () => {
+  let captured: { trace_id: unknown } | null = null;
+  const client = new Relivio({
+    apiKey: "rk_test",
+    traceIdProvider: () => "from_provider",
+    fetchImpl: async (_url, init) => {
+      captured = JSON.parse(String(init?.body));
+      return new Response(
+        JSON.stringify({ status: "accepted", log_event_id: "log_trace_override" }),
+        { status: 202 },
+      );
+    },
+  });
+
+  await client.captureException(new Error("boom"), { traceId: "explicit_trace" });
+
+  assert.equal(captured?.trace_id, "explicit_trace");
+});
+
+test("traceIdProvider exception is swallowed and falls back to null", async () => {
+  let captured: { trace_id: unknown } | null = null;
+  const client = new Relivio({
+    apiKey: "rk_test",
+    traceIdProvider: () => {
+      throw new Error("provider broken");
+    },
+    fetchImpl: async (_url, init) => {
+      captured = JSON.parse(String(init?.body));
+      return new Response(
+        JSON.stringify({ status: "accepted", log_event_id: "log_trace_fallback" }),
+        { status: 202 },
+      );
+    },
+  });
+
+  await client.captureException(new Error("boom"));
+
+  assert.equal(captured?.trace_id, null);
+  assert.equal(client.status().capturedEvents, 1);
+});
+
+test("ingest.send payload is not mutated by defaultService", async () => {
+  let captured: { service: unknown } | null = null;
+  const client = new Relivio({
+    apiKey: "rk_test",
+    defaultService: "checkout-api",
+    fetchImpl: async (_url, init) => {
+      captured = JSON.parse(String(init?.body));
+      return new Response(
+        JSON.stringify({ status: "accepted", log_event_id: "log_passthrough" }),
+        { status: 202 },
+      );
+    },
+  });
+
+  await client.ingest.send({
+    level: "ERROR",
+    message: "explicit ingest message",
+  });
+
+  assert.equal(captured?.service, null);
+});
