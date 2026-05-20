@@ -40,6 +40,7 @@ test("http retries 429 until success", async () => {
 
   const result = await client.deployments.register({ version: "1.0.0" });
   assert.equal(result.id, "dep_1");
+  assert.equal(result.deploymentId, "dep_1");
   assert.equal(calls, 2);
 });
 
@@ -79,4 +80,3 @@ test("http raises after retry budget exhausted", async () => {
 
   assert.equal(calls, 4);
 });
-

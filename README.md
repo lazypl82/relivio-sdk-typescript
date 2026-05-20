@@ -46,7 +46,7 @@ import { IngestLogInput, Relivio } from "relivio";
 const relivio = new Relivio({ apiKey: "rk_..." });
 
 const deployment = await relivio.deployments.register({ version: "1.2.3" });
-console.log(deployment.id);
+console.log(deployment.deploymentId);
 
 const result = await relivio.ingest.send({
   level: "ERROR",

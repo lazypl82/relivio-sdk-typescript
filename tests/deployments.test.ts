@@ -23,6 +23,7 @@ test("deployments.register maps payload and response", async () => {
       return new Response(
         JSON.stringify({
           id: "dep_1",
+          deployment_id: "dep_1",
           version: "1.2.3",
           summary_scheduled: true,
         }),
@@ -40,6 +41,7 @@ test("deployments.register maps payload and response", async () => {
 
   assert.deepEqual(result, {
     id: "dep_1",
+    deploymentId: "dep_1",
     version: "1.2.3",
     summaryScheduled: true,
   });
@@ -94,6 +96,7 @@ test("deployments.registerFromEnvironment merges runtime metadata", async () => 
       return new Response(
         JSON.stringify({
           id: "dep_env",
+          deployment_id: "dep_env",
           version: "abc123",
           summary_scheduled: true,
         }),
@@ -108,6 +111,7 @@ test("deployments.registerFromEnvironment merges runtime metadata", async () => 
     });
 
     assert.equal(result.id, "dep_env");
+    assert.equal(result.deploymentId, "dep_env");
   } finally {
     if (previousCommitSha === undefined) {
       delete process.env.RELIVIO_COMMIT_SHA;

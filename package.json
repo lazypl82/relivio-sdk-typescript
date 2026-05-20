@@ -1,6 +1,6 @@
 {
   "name": "relivio",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Primitive TypeScript client for Relivio deploy registration, ingest, and exception capture.",
   "type": "module",
   "license": "MIT",

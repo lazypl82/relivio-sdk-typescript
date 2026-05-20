@@ -29,6 +29,7 @@ export class DeploymentsResource {
 
     return {
       id: raw.id,
+      deploymentId: raw.deployment_id ?? raw.id,
       version: raw.version,
       summaryScheduled: raw.summary_scheduled,
     };
